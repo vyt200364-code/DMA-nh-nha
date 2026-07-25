@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Ôn Tập Digital Marketing Analytics</title>
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --light-blue: #e6f2ff;
+            --dark-blue: #002d5a;
+            --accent-blue: #007bff;
+            --correct-green: #28a745;
+            --incorrect-red: #dc3545;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-blue);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 90, 179, 0.15);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--dark-blue);
+            text-align: center;
+            margin-top: 0;
+            border-bottom: 3px solid var(--accent-blue);
+            padding-bottom: 10px;
+        }
+
+        .status-board {
+            display: flex;
+            justify-content: space-between;
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            border: 1px solid #b3d7ff;
+        }
+
+        .beauty-status {
+            color: var(--primary-blue);
+        }
+
+        .beauty-rating {
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .rating-dep { background-color: var(--correct-green); }
+        .rating-xau { background-color: var(--incorrect-red); }
+
+        .question-box {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark-blue);
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #f0f7ff;
+            transform: translateX(5px);
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-green) !important;
+            border-color: var(--correct-green) !important;
+            color: white !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--incorrect-red) !important;
+            border-color: var(--incorrect-red) !important;
+            color: white !important;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .result-screen h2 {
+            color: var(--primary-blue);
+            font-size: 2em;
+        }
+
+        .final-beauty {
+            font-size: 2.5em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Màn hình chơi game -->
+        <div id="game-screen">
+            <h1>QUỐC PHÒNG ÔN TẬP</h1>
+            <div class="status-board">
+                <div>Câu hỏi: <span id="current-q">1</span>/<span id="total-q">0</span></div>
+                <div class="beauty-status">
+                    Độ Xinh Đẹp: <span id="beauty-score">50</span> 
+                    (<span id="beauty-label" class="beauty-rating rating-dep">Đẹp</span>)
+                </div>
+            </div>
+            <div class="question-box" id="question-text">Đang tải câu hỏi...</div>
+            <div class="options-container" id="options-box"></div>
+            <div class="controls">
+                <button class="next-btn" id="next-button" onclick="nextQuestion()">Câu Tiếp Theo</button>
+            </div>
+        </div>
+
+        <!-- Màn hình kết thúc -->
+        <div id="result-screen" class="result-screen">
+            <h1>Kết Thúc Ôn Tập!</h1>
+            <h2>Chỉ số nhan sắc cuối cùng của bạn:</h2>
+            <div class="final-beauty" id="final-beauty-text">50</div>
+            <p style="font-size: 1.3em;" id="final-eval"></p>
+            <button class="option-btn" style="text-align:center; width:200px; margin:20px auto; display:block;" onclick="resetGame()">Chơi Lại</button>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu câu hỏi trích xuất từ file của bạn
+        const quizData = [
+            {
+                q: "Imagine that a marketer runs an ad campaign, and they want to determine the return on ad spend (ROAS). Which of the following ratios should they use?",
+                options: [
+                    "The ratio of revenue generated in the previous quarter to the current quarter.",
+                    "The ratio of revenue generated to the amount spent on advertising.",
+                    "The ratio of performance goals to marketing goals.",
+                    "The ratio of the amount spent on advertising to the amount spent on owned media."
+                ],
+                answer: 1
+            },
+            {
+                q: "What technology advancement is mentioned that allows consumers in China (Kentucky Fried Chicken) to make payments?",
+                options: ["Iris recognition", "Voice recognition", "Fingerprint scanning", "Facial recognition"],
+                answer: 3
+            },
+            {
+                q: "What is the benefit of using a template when creating an exploration?",
+                options: [
+                    "Templates offer pre-built visualizations for specific data analysis goals.",
+                    "Templates allow adding custom variables without using the 'plus' icon.",
+                    "Templates limit the types of segments, dimensions, and metrics you can use.",
+                    "There is no benefit to using a template; all explorations function the same."
+                ],
+                answer: 0
+            },
+            {
+                q: "What is a zombie site in the context of ad fraud?",
+                options: [
+                    "A website that hosts malware",
+                    "A fake website created to generate ad revenue through bots",
+                    "A website that only runs outdated content",
+                    "A legitimate website with low traffic"
+                ],
+                answer: 1
+            },
+            {
+                q: "Which of the following activities is included in working with Google Analytics?",
+                options: ["Conducting customer interviews", "Creating Explorations", "Designing web pages", "Managing email campaigns"],
+                answer: 1
+            },
+            {
+                q: "What is the key distinction between a stacked column chart and a grouped column chart?",
+                options: [
+                    "Stacked columns show a single metric, while grouped columns show multiple metrics.",
+                    "Stacked columns are better for comparing large value differences, while grouped columns are not.",
+                    "Grouped columns allow for more space on the X-axis compared to stacked columns.",
+                    "Stacked columns display the total contribution of each variable, while grouped columns show them side-by-side."
+                ],
+                answer: 3
+            },
+            {
+                q: "Which of the following is a step for conducting an A/B test in Google Ads?",
+                options: ["Creating a new website", "Developing a mobile app", "Creating a new ad variation", "Designing a new company logo"],
+                answer: 2
+            },
+            {
+                q: "What are two key metrics used in marketing analytics to measure campaign success?",
+                options: [
+                    "Brand awareness and customer engagement",
+                    "Click-through rate and social media reach",
+                    "Return on Investment (ROI) and Return on Ad Spend (ROAS)",
+                    "Website traffic and conversion rate"
+                ],
+                answer: 2
+            },
+            {
+                q: "What is introduced alongside Google Analytics for monitoring campaign performance?",
+                options: ["Google Search Console", "Google Ads", "Google Tag Manager", "Google My Business"],
+                answer: 1
+            },
+            {
+                q: "Which spreadsheet feature is mentioned for preparing data to be shared?",
+                options: ["Page margins", "Sorting and filtering", "Macros", "Data validation"],
+                answer: 1
+            },
+            {
+                q: "What is the benefit of using marketing analytics tools?",
+                options: [
+                    "They can automatically run marketing campaigns",
+                    "They can help design creative marketing materials",
+                    "They allow you to see and understand important campaign data",
+                    "They guarantee the success of any marketing campaign"
+                ],
+                answer: 2
+            },
+            {
+                q: "What is one of the purposes of creating charts in spreadsheets?",
+                options: ["To automate marketing campaigns", "To visualize metrics", "To design web pages", "To create interactive content"],
+                answer: 1
+            },
+            {
+                q: "Imagine that a marketer is working on a digital ad campaign for a single product. They learn that it costs $200 USD in advertising to sell 8 units of a $75 USD product. What is this marketer's ROAS?",
+                options: [
+                    "(8 x 75) / 200 = 3",
+                    "(8 x 8) / 200 = 0.32",
+                    "(8 x 200) / 75 = 21.3",
+                    "(75 x 75) / 8 = 703.1"
+                ],
+                answer: 0
+            },
+            {
+                q: "Which of the following CANNOT be utilized to obtain location data?",
+                options: ["App signals", "Cell tower pings", "Wi-Fi network accession", "None of above"],
+                answer: 3
+            },
+            {
+                q: "Stakeholders are important because they:",
+                options: [
+                    "Like to be kept in the loop",
+                    "Can influence project success and funding.",
+                    "Can create marketing campaigns.",
+                    "Are always internal to your organization."
+                ],
+                answer: 1
+            },
+            {
+                q: "We are gaining great insight into consumers by collecting ... data",
+                options: ["Structured", "Unstructured", "Micro-decision", "Raw"],
+                answer: 1
+            },
+            {
+                q: "What does ROAS stand for in digital media planning?",
+                options: ["Return on Advertising Spend", "Reach of Audience Satisfaction", "Revenue on Annual Sales", "Response on Ad Spend"],
+                answer: 0
+            },
+            {
+                q: "Among the approaches to measure Brand Value, which one is the least quantifiable and least objective?",
+                options: ["Net promoter score", "Royalty Relief", "Brand Valuation", "Assessing Attributes"],
+                answer: 3
+            },
+            {
+                q: "Why is it important to maintain flexibility with the data included in dashboards according to the content?",
+                options: ["To increase complexity", "To adhere to Avinash Kaushik's rule", "To adapt with changes", "To challenge the viewer"],
+                answer: 2
+            },
+            {
+                q: "What is the main difference between a dimension and a metric in Google Analytics Explorations?",
+                options: [
+                    "Dimensions are qualitative, while metrics are quantitative.",
+                    "Dimensions define user segments, while metrics track events.",
+                    "Metrics are subsets of data, while dimensions provide overall summaries.",
+                    "There is no practical difference; they both represent data points."
+                ],
+                answer: 0
+            },
+            {
+                q: "The Kaushik's rule suggests that the investment of resources should be..% for analytics tools and ...% for the analysts.",
+                options: ["10, 90", "90, 10", "80, 20", "20, 80"],
+                answer: 0
+            },
+            {
+                q: "What is the main difference between sorting and filtering data in a spreadsheet?",
+                options: [
+                    "Sorting rearranges all data, while filtering hides unwanted data.",
+                    "Sorting is permanent, while filtering is temporary.",
+                    "Sorting can only be done by one column, while filtering can be done on multiple columns.",
+                    "Sorting requires advanced formulas, while filtering is a simple menu option."
+                ],
+                answer: 0
+            },
+            {
+                q: "When measuring conversions in Google Ads, what does 'cost' refer to?",
+                options: [
+                    "The potential value a customer might bring in the future.",
+                    "The total revenue generated from all conversions.",
+                    "The investment spent on displaying the campaign ads.",
+                    "The average cost per click on an ad."
+                ],
+                answer: 2
+            },
+            {
+                q: "What benefit is described by linking data from Google Ads and other platforms to Google Analytics?",
+                options: [
+                    "Automates the entire marketing process",
+                    "Enables better monitoring of the customer journey",
+                    "Improves website loading speed",
+                    "Increases the speed of data collection"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is the purpose of including ROAS in a media plan?",
+                options: [
+                    "To measure the number of impressions",
+                    "To calculate the number of clicks",
+                    "To evaluate revenue generation from advertising spend",
+                    "To estimate the reach of the campaign"
+                ],
+                answer: 2
+            },
+            {
+                q: "What is the primary goal of the section 'Big data for marketing analytics and automation'?",
+                options: [
+                    "Designing new websites",
+                    "Creating email marketing campaigns",
+                    "Enhancing marketing analytics and automation using large datasets",
+                    "Developing mobile applications"
+                ],
+                answer: 2
+            },
+            {
+                q: "Which of the following describes the correlation pattern in data?",
+                options: [
+                    "Trend or instance of observations becoming different over time",
+                    "Collection of data points with similar (or dissimilar) value",
+                    "Observations considered in relation or in proposition to something else",
+                    "Position in a scale of achievement or status",
+                    "Mutual relationship or connection between two or more things"
+                ],
+                answer: 4
+            },
+            {
+                q: "What is the current state of our evolution?",
+                options: ["Tremendously interesting", "Tremendously boring", "Tremendously chaos", "Unchangeable"],
+                answer: 0
+            },
+            {
+                q: "What are dimensions in Google Analytics?",
+                options: [
+                    "Dimensions are the attributes or characteristics of an event that determine the metrics collected.",
+                    "Dimensions are the required metrics for social media campaigns.",
+                    "Dimensions are a type of Urchin Tracking Module that help monitor content.",
+                    "Dimensions are the primary metrics used to measure brand awareness."
+                ],
+                answer: 0
+            },
+            {
+                q: "Which of the following is an essential part of performing an A/B test?",
+                options: [
+                    "Launching a new product",
+                    "Analyzing the results to optimize a marketing campaign",
+                    "Creating multiple social media profiles",
+                    "Designing a new logo"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is the price of each evolution of technology?",
+                options: ["Reduced privacy", "Increased cost", "Reduced performance", "Increased employment"],
+                answer: 0
+            },
+            {
+                q: "What is one of the main reactions that holds platforms accountable for data breaches?",
+                options: [
+                    "Encouraging companies to collect more data",
+                    "Implementing stricter password requirements",
+                    "Issuing fines to companies like Facebook and YouTube for their violations",
+                    "Reducing internet access for certain platforms"
+                ],
+                answer: 2
+            },
+            {
+                q: "Google's global site tag is called:",
+                options: ["GA4 Event tag", "gtag.js", "Google Tag Manager", "HTML element"],
+                answer: 1
+            },
+            {
+                q: "IBM, Adobe, Google Analytics are examples of...",
+                options: ["Enterprise platform", "Point solution", "Analysis gadget", "All of them"],
+                answer: 0
+            },
+            {
+                q: "Which of the following is true about the measurement category of attribution?",
+                options: [
+                    "It measures 'micro-conversion' activities such as store visits to take insight into the performance of campaigns.",
+                    "It is about how well marketing helps you maximise value from your consumer.",
+                    "It is about how well marketing helps you measure and value the impact of your media.",
+                    "It utilises exclusive MMM approach as data and collection methods."
+                ],
+                answer: 2
+            },
+            {
+                q: "What is a MAJOR advantage of creating charts in spreadsheets compared to other data visualization tools?",
+                options: [
+                    "Charts in spreadsheets offer more statistical analysis options.",
+                    "Spreadsheet charts can be directly copied and pasted into presentations.",
+                    "Spreadsheet charts are more visually appealing and customizable.",
+                    "Spreadsheet charts require less technical expertise to create."
+                ],
+                answer: 3
+            },
+            {
+                q: "Besides using spreadsheets, what is another possible destination for exported Google Analytics data?",
+                options: [
+                    "Social media platforms for sharing with a wider audience.",
+                    "BigQuery, a cloud-based data warehouse offered by Google.",
+                    "Website content management systems for embedding reports directly on webpages.",
+                    "The data cannot be exported to any platform other than spreadsheets."
+                ],
+                answer: 1
+            },
+            {
+                q: "What is the second sin often seen in dashboards?",
+                options: ["Too Long Didn't Read (TLDR)", "Too short to understand", "Too many colors", "Lack of navigation"],
+                answer: 0
+            },
+            {
+                q: "Which metrics are most relevant to monitor brand awareness at the beginning of the marketing funnel?",
+                options: ["Click-through rate (CTR) and interaction rate", "Impressions and clicks", "Conversion rate and cost per conversion", "Conversion value and return on ad spend (ROAS)"],
+                answer: 1
+            },
+            {
+                q: "What is the MAIN factor to consider when determining a marketing campaign's success?",
+                options: [
+                    "How many people saw the marketing materials",
+                    "Whether the campaign met its pre-defined goals",
+                    "How much money was spent on the campaign",
+                    "How creative the marketing materials were"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is the third sin described in the content about dashboards?",
+                options: ["Pretty but empty-headed", "Dull and uninspiring", "Overloaded with text", "Excessive interactivity"],
+                answer: 0
+            },
+            {
+                q: "What are the four key elements essential for successful data visualization?",
+                options: [
+                    "Quality data, well-defined objective, good story design, appropriate visualization",
+                    "Quality data, clear meaning, contrast, refined execution",
+                    "Data collection, story design, visual form, color contrast",
+                    "Objective data, refined execution, detailed analysis, color contrast"
+                ],
+                answer: 0
+            },
+            {
+                q: "Building awareness, influencing consideration, improving sales experiences and growing loyalty are examples of:",
+                options: ["Business objectives", "Marketing objectives", "Media objectives", "Campaign objectives"],
+                answer: 1
+            },
+            {
+                q: "What is a stakeholder?",
+                options: [
+                    "Someone with an interest in or a concern for a project and its results",
+                    "Someone who collects data, queries databases, applies statistical methods to data, and creates data visualizations.",
+                    "Someone who creates content for different social media platforms to drive engagement and promote a business or product",
+                    "Someone who coordinates marketing activities and initiatives, identifies target audiences through research, runs campaigns, and evaluates trends"
+                ],
+                answer: 0
+            },
+            {
+                q: "Which of the following is true of the difference between tags and cookies?",
+                options: [
+                    "Tags never work on mobile devices, while cookies always do",
+                    "Cookies are stored on a customer's computer or device, while tags are lines of code that are executed upon accession",
+                    "Cookies are never stored on a customer's computer, while tags are",
+                    "Tags and cookies are effectively interchangeable terms for the same thing"
+                ],
+                answer: 1
+            },
+            {
+                q: "In Google Analytics 4, what do we call a website, mobile application or webpage that is associated with a unique measurement ID to enable metrics collection?",
+                options: ["Property", "Event", "Dimension", "Segment"],
+                answer: 0
+            },
+            {
+                q: "In marketing, what is a performance goal?",
+                options: [
+                    "A specific media event in a marketing campaign.",
+                    "A target that has a measurable, numeric value.",
+                    "An approach to allocating brand campaign budget on specific types of media.",
+                    "A plan that helps people understand what is in a marketing campaign before it is run."
+                ],
+                answer: 1
+            },
+            {
+                q: "Companies today tend to have ... data on customer's online behavior",
+                options: ["complete", "near-complete", "incomplete", "None of above"],
+                answer: 2
+            },
+            {
+                q: "What is big data?",
+                options: [
+                    "A field developing intelligent machines and software that simulate human thought or work",
+                    "A field in analytics that systematically mines and extracts information from very large datasets for insights",
+                    "A field using science and technology to design and build machines and structures",
+                    "A field focused on the production, distribution, and consumption of goods and services"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is conversion volume?",
+                options: [
+                    "The total revenue generated by marketing activities over a period of time.",
+                    "The process of gaining new customers.",
+                    "The sum of individual order amounts divided by the number of orders.",
+                    "The total number of conversions or total monetary value of conversions over a period of time."
+                ],
+                answer: 3
+            },
+            {
+                q: "Fake profiles have become more present on the internet. Which mass media company uncovered the use of fake profiles used to promote propaganda and fake news?",
+                options: ["New York Times", "Chicago Tribune", "Wall Street Journal", "Washington Post"],
+                answer: 0
+            },
+            {
+                q: "What is the purpose of attribution?",
+                options: [
+                    "To indicate if a user is moving towards a macro conversion",
+                    "To assign credit for conversions from ads, last clicks, or other touch points along a user's path to conversion completion",
+                    "To monitor immediate data for insights to respond to events more quickly",
+                    "To determine the better performing option of two variants with an online test"
+                ],
+                answer: 1
+            },
+            {
+                q: "Which data access point is typically just a URL and works like the way your browser makes a call?",
+                options: ["Facial Download", "API", "Webscraping", "None of them"],
+                answer: 1
+            },
+            {
+                q: "Brand safety is a risk because of which dark side technology?",
+                options: ["Trade Issues", "Brand Name", "Fake News", "Brand disclosure"],
+                answer: 2
+            },
+            {
+                q: "Which category of analytics tool can do one or two functions very effectively while processing a medium amount of data?",
+                options: ["Analysis Gadgets", "Point Solutions", "Data Density", "Enterprise Platforms"],
+                answer: 1
+            },
+            {
+                q: "Which organization falls in a distant 3rd in the race for Cloud Computing marketshare?",
+                options: ["Yahoo", "Google", "Microsoft", "Amazon"],
+                answer: 1
+            },
+            {
+                q: "API stands for?",
+                options: ["Application program interface", "Application program information", "Anti program interface", "Application product information"],
+                answer: 0
+            },
+            {
+                q: "What is Return on investment (ROI)?",
+                options: [
+                    "A measure of total units sold throughout the marketing campaign",
+                    "A measure of sales growth by multiplying the marketing cost",
+                    "A measure of revenue lost by customers over a certain period of time",
+                    "A measure of the profit generated from a marketing campaign"
+                ],
+                answer: 3
+            },
+            {
+                q: "What is return on ad spend (ROAS)?",
+                options: [
+                    "A number calculated as the revenue generated divided by the amount spent on advertising",
+                    "A ratio of net income to advertising investment during the campaign period",
+                    "An average revenue generated by customers over a certain period of time",
+                    "A target for digital channels that usually sets the amount spent on the campaign"
+                ],
+                answer: 0
+            },
+            {
+                q: "Which category of Marketing Data Analysis that seeks to discover connections and patterns in data?",
+                options: ["Predictive", "Causal", "Exploratory", "Inferential"],
+                answer: 2
+            },
+            {
+                q: "Which one below is a Marketing Objective?",
+                options: ["Influence consideration", "Size visits/clicks", "Grow unit sold", "Increase Facebook engagement"],
+                answer: 0
+            },
+            {
+                q: "As a digital marketer, why is it important to measure ROAS?",
+                options: [
+                    "To understand the impact of budget setting on the amount owed from a campaign",
+                    "To evaluate the performance and success of a campaign",
+                    "To measure fluctuations in target analysis",
+                    "To avoid relying on an automated bidding strategy"
+                ],
+                answer: 1
+            },
+            {
+                q: "What does TRP stand for?",
+                options: ["Total Response Point", "Target Rating Point", "Tertiary Response Protocol", "None of them above"],
+                answer: 1
+            },
+            {
+                q: "In an A/B test, how is traffic directed between the two variants being tested?",
+                options: [
+                    "Based on user preferences",
+                    "Split evenly, with 50% of traffic going to each variant",
+                    "Randomly assigned, but unevenly distributed",
+                    "Directed only to the variant with better visuals"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is one of the primary uses of Google Analytics?",
+                options: ["Designing graphic content", "Monitoring website metrics", "Creating video advertisements", "Automating email marketing"],
+                answer: 1
+            },
+            {
+                q: "What should you avoid when writing a headline for a chart?",
+                options: ["Using bold fonts", "Using clear and concise language", "Using abbreviations and acronyms", "Aligning the headline to the left"],
+                answer: 2
+            },
+            {
+                q: "Which of the following is an effective way to use titles in data visualization to convey clear meaning?",
+                options: [
+                    "Use concise and descriptive titles that summarize the main message",
+                    "Use long and detailed titles with multiple points",
+                    "Use vague titles that provoke curiosity",
+                    "Use titles with technical jargon"
+                ],
+                answer: 0
+            },
+            {
+                q: "What is a challenge posed by traffic bots in the digital advertising space?",
+                options: ["Inflated website traffic", "Increased user engagement", "Better ad placement", "Spread of fake news"],
+                answer: 0
+            },
+            {
+                q: "Why is location tracking highlighted as a significant issue for consumers?",
+                options: [
+                    "Location tracking is not a concern for consumers",
+                    "Consumers have full control over location data",
+                    "Consumers may be tracked without their knowledge",
+                    "Consumers are not aware of the risks of location tracking"
+                ],
+                answer: 2
+            },
+            {
+                q: "What is a performance goal in the context of media plans?",
+                options: [
+                    "A target that has a measurable numeric value",
+                    "A goal that is vague and hard to quantify",
+                    "A subjective goal without any set target",
+                    "A goal that changes frequently"
+                ],
+                answer: 0
+            },
+            {
+                q: "Where can you find the full article regarding Google's approach to inclusive media planning and buying?",
+                options: ["thinkwithgoogle.com", "googlemarketing.com", "mediaplansandgoals.com", "inclusivecampaigns.com"],
+                answer: 0
+            },
+            {
+                q: "What kind of metrics can you see in the Campaigns page of Google Ads?",
+                options: ["Overall website traffic", "Number of clicks and conversions", "Competitor budgets", "Email campaign performance"],
+                answer: 1
+            },
+            {
+                q: "What is the purpose of Google Ads' Smart Bidding?",
+                options: [
+                    "To manually place bids on ads",
+                    "To analyze data using AI and show the right message at the right time",
+                    "To run campaigns only on social media platforms",
+                    "To create static reports for ad performance"
+                ],
+                answer: 1
+            },
+            {
+                q: "What does UTM stand for in the context of Google Analytics?",
+                options: ["User Tracking Module", "Universal Traffic Monitor", "Urchin Tracking Module", "Unified Tracking Method"],
+                answer: 2
+            },
+            {
+                q: "What is the primary function of a tag on a website?",
+                options: [
+                    "To display visual content on the webpage.",
+                    "To track website performance and user behavior.",
+                    "To connect users to social media platforms.",
+                    "To encrypt sensitive user information."
+                ],
+                answer: 1
+            },
+            {
+                q: "What is the purpose of using contrast in data visualization?",
+                options: [
+                    "To make the entire dataset equally prominent",
+                    "To separate important data from less important background data",
+                    "To emphasize the use of refined execution techniques",
+                    "To add random colors to the visualization"
+                ],
+                answer: 1
+            },
+            {
+                q: "What is highlighted as a significant challenge related to location data?",
+                options: ["Data encryption challenges", "Regulation issues", "Consumer awareness", "Facial recognition technology"],
+                answer: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let beautyScore = 50;
+
+        const questionTextEl = document.getElementById('question-text');
+        const optionsBoxEl = document.getElementById('options-box');
+        const currentQEl = document.getElementById('current-q');
+        const totalQEl = document.getElementById('total-q');
+        const beautyScoreEl = document.getElementById('beauty-score');
+        const beautyLabelEl = document.getElementById('beauty-label');
+        const nextButtonEl = document.getElementById('next-button');
+        const gameScreenEl = document.getElementById('game-screen');
+        const resultScreenEl = document.getElementById('result-screen');
+
+        function initGame() {
+            totalQEl.textContent = quizData.length;
+            showQuestion();
+        }
+
+        function updateBeautyUI() {
+            beautyScoreEl.textContent = beautyScore;
+            if (beautyScore >= 50) {
+                beautyLabelEl.textContent = "Đẹp";
+                beautyLabelEl.className = "beauty-rating rating-dep";
+            } else {
+                beautyLabelEl.textContent = "Xấu";
+                beautyLabelEl.className = "beauty-rating rating-xau";
+            }
+        }
+
+        function showQuestion() {
+            nextButtonEl.style.display = 'none';
+            optionsBoxEl.innerHTML = '';
+            
+            currentQEl.textContent = currentQuestionIndex + 1;
+            let currentQuestion = quizData[currentQuestionIndex];
+            questionTextEl.textContent = currentQuestion.q;
+
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index, button);
+                optionsBoxEl.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex, selectedButton) {
+            let currentQuestion = quizData[currentQuestionIndex];
+            let buttons = optionsBoxEl.querySelectorAll('.option-btn');
+            
+            // Disable all buttons after choice
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentQuestion.answer) {
+                selectedButton.classList.add('correct');
+                beautyScore += 5; // Trả lời đúng cộng điểm xinh đẹp
+            } else {
+                selectedButton.classList.add('incorrect');
+                buttons[currentQuestion.answer].classList.add('correct');
+                beautyScore -= 5; // Trả lời sai bị xấu đi
+            }
+
+            updateBeautyUI();
+            nextButtonEl.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameScreenEl.style.display = 'none';
+            resultScreenEl.style.display = 'block';
+            document.getElementById('final-beauty-text').textContent = beautyScore;
+            
+            let evalText = "";
+            if (beautyScore >= 80) {
+                evalText = "Xuất sắc! Bạn vừa thông thái vừa sở hữu nhan sắc nghiêng nước nghiêng thành! ✨";
+            } else if (beautyScore >= 50) {
+                evalText = "Chúc mừng! Bạn đạt chuẩn ĐẸP và có kiến thức nền tảng rất vững chắc. 💙";
+            } else {
+                evalText = "Ối! Nhan sắc hơi bị 'lu mờ' một tí rồi. Hãy chơi lại để tút tát lại vẻ đẹp và kiến thức nhé! 🔥";
+            }
+            document.getElementById('final-eval').textContent = evalText;
+        }
+
+        function resetGame() {
+            currentQuestionIndex = 0;
+            beautyScore = 50;
+            updateBeautyUI();
+            resultScreenEl.style.display = 'none';
+            gameScreenEl.style.display = 'block';
+            showQuestion();
+        }
+
+        // Khởi chạy game
+        initGame();
+    </script>
+</body>
+</html>
