@@ -256,3 +256,103 @@ submitBtn.classList.add("hide");
 nextBtn.classList.remove("hide");
 
 }
+nextBtn.onclick = () => {
+
+    current++;
+
+    if(current >= quiz.length){
+
+        finishGame();
+
+        return;
+
+    }
+
+    loadQuestion();
+
+};
+function getRank(score){
+
+    if(score >= 95){
+        return "👑 GODDESS";
+    }
+
+    if(score >= 80){
+        return "✨ GORGEOUS";
+    }
+
+    if(score >= 65){
+        return "😊 PRETTY";
+    }
+
+    if(score >= 50){
+        return "🙂 CUTE";
+    }
+
+    if(score >= 35){
+        return "😐 AVERAGE";
+    }
+
+    if(score >= 20){
+        return "🥔 POTATO";
+    }
+
+    return "👹 GOBLIN";
+
+}
+function finishGame(){
+
+    quizScreen.classList.add("hide");
+
+    result.classList.remove("hide");
+
+    finalBeauty.innerHTML =
+    "Beauty Score : " + beauty + "/100";
+
+    beautyRank.innerHTML =
+    getRank(beauty);
+
+    correctCount.innerHTML =
+    "✅ Correct : " + correct;
+
+    wrongCount.innerHTML =
+    "❌ Wrong : " + wrong;
+
+}
+playAgain.onclick = () => {
+
+    quiz = JSON.parse(JSON.stringify(questions));
+
+    shuffle(quiz);
+
+    quiz.forEach(q=>{
+
+        shuffle(q.options);
+
+    });
+
+    correct = 0;
+    wrong = 0;
+    beauty = 50;
+    current = 0;
+
+    result.classList.add("hide");
+
+    quizScreen.classList.remove("hide");
+
+    loadQuestion();
+
+};
+goHome.onclick = () => {
+
+    result.classList.add("hide");
+
+    home.classList.remove("hide");
+
+};
+window.onload = () => {
+
+    totalQuestion.innerHTML =
+    questions.length + " Questions";
+
+};
