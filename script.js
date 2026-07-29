@@ -240,7 +240,15 @@ beauty+=3;
 
 wrong++;
 
-beauty-=2;
+beauty -= 2;
+
+questionBox.classList.add("shake");
+
+setTimeout(()=>{
+
+questionBox.classList.remove("shake");
+
+},400);
 
 }
 
