@@ -255,3 +255,12 @@ transition:.3s;
 transform:scale(1.25);
 
 }
+beautyText.innerHTML =
+"Beauty " + beauty;
+beautyText.classList.add("pop");
+
+setTimeout(()=>{
+
+beautyText.classList.remove("pop");
+
+},300);
