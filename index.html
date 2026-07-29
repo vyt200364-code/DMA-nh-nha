@@ -1,211 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>DMA Quiz</title>
+    <title>DMA Beauty Quiz</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<div class="background"></div>
+<div id="home" class="screen">
 
-<!-- ================= HOME ================= -->
+    <h1>DMA BEAUTY QUIZ</h1>
 
-<section id="home" class="screen active">
+    <p>Digital Marketing Analytics</p>
 
-    <div class="card home-card">
+    <h3 id="totalQuestion"></h3>
 
-        <h1>DMA QUIZ</h1>
+    <button id="startBtn">
+        START QUIZ
+    </button>
 
-        <h2>Digital Marketing Analytics</h2>
+</div>
 
-        <p class="desc">
-            🎲 Random câu hỏi<br>
-            🎯 Random đáp án<br>
-            💙 Tính điểm xinh đẹp
-        </p>
 
-        <button id="startBtn">
-            BẮT ĐẦU
-        </button>
+
+
+
+<div id="quiz" class="screen hide">
+
+    <div class="top">
+
+        <div id="progressText">
+
+            Question
+
+        </div>
+
+        <div id="beautyText">
+
+            Beauty 50
+
+        </div>
 
     </div>
 
-</section>
 
-<!-- ================= QUIZ ================= -->
+    <div class="progress">
 
-<section id="quiz" class="screen">
+        <div id="progressBar"></div>
 
-<div class="quiz-box">
+    </div>
 
-<div class="top">
 
-<div class="progress-text">
 
-<span id="currentQuestion">1</span>
+    <div id="questionBox">
 
-/
+        Question Here
 
-<span id="totalQuestion">0</span>
+    </div>
 
-</div>
 
-<div class="beauty-box">
+    <div id="answers">
 
-💙
+    </div>
 
-<span id="beautyScore">
-50
-</span>
 
-</div>
 
-</div>
+    <button id="submitBtn">
 
-<div class="progress">
+        Submit
 
-<div id="progressBar"></div>
+    </button>
+
+    <button id="nextBtn" class="hide">
+
+        Next
+
+    </button>
 
 </div>
 
-<div class="question-box">
 
-<h2 id="question">
 
-Question
 
-</h2>
 
-</div>
 
-<div id="answers" class="answers">
 
-</div>
+<div id="result" class="screen hide">
 
-<div class="bottom">
+    <h1>Finished</h1>
 
-<button id="nextBtn" disabled>
+    <h2 id="finalBeauty"></h2>
 
-NEXT →
+    <h3 id="beautyRank"></h3>
 
-</button>
+    <p id="correctCount"></p>
 
-</div>
+    <p id="wrongCount"></p>
 
-</div>
+    <button id="playAgain">
 
-</section>
+        Play Again
 
-<!-- ================= RESULT ================= -->
+    </button>
 
-<section id="result" class="screen">
+    <button id="goHome">
 
-<div class="result-card">
+        Home
 
-<h1>
-
-🎉 Hoàn thành
-
-</h1>
-
-<div class="result-score">
-
-<div class="circle">
-
-<span id="finalBeauty">
-
-50
-
-</span>
+    </button>
 
 </div>
 
-</div>
 
-<h2 id="beautyText">
-
-Bạn đẹp vừa đủ 😊
-
-</h2>
-
-<div class="stats">
-
-<p>
-
-✅ Đúng:
-
-<span id="correctCount">
-
-0
-
-</span>
-
-</p>
-
-<p>
-
-❌ Sai:
-
-<span id="wrongCount">
-
-0
-
-</span>
-
-</p>
-
-<p>
-
-📊 Chính xác:
-
-<span id="accuracy">
-
-0%
-
-</span>
-
-</p>
-
-<p>
-
-🏆 Rank:
-
-<span id="rank">
-
-A
-
-</span>
-
-</p>
-
-</div>
-
-<div class="buttons">
-
-<button id="playAgain">
-
-🔄 Chơi lại
-
-</button>
-
-<button id="backHome">
-
-🏠 Trang chủ
-
-</button>
-
-</div>
-
-</div>
-
-</section>
 
 <script src="questions.js"></script>
 
