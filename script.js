@@ -96,9 +96,9 @@ progressText.innerHTML=
 beautyText.innerHTML=
 `Beauty ${beauty}`;
 
-progressBar.style.width=
-((current)/quiz.length)*100+"%";
-
+progressBar.style.width =
+((current+1)/quiz.length)*100+"%";
+  
 questionBox.innerHTML=q.question;
   q.options.forEach((op,index)=>{
 
