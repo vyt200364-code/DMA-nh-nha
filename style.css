@@ -242,3 +242,16 @@ transform:translateX(0);
 }
 
 }
+#beautyText{
+
+font-weight:bold;
+
+transition:.3s;
+
+}
+
+.pop{
+
+transform:scale(1.25);
+
+}
